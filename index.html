@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Spam List Challenge — ZundaGDPS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 800px;
+            max-width: 100%;
+            padding: 35px;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header .top-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #111;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.4;
+        }
+
+        .header h1 .highlight {
+            color: #00aa55;
+        }
+
+        .divider {
+            width: 80%;
+            height: 2px;
+            margin: 18px auto;
+            background: #ddd;
+        }
+
+        /* #1 место */
+        .top-level {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            font-weight: 900;
+            font-size: 22px;
+            padding: 7px 22px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .level-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: #111;
+            margin-bottom: 5px;
+        }
+
+        .level-author {
+            font-size: 15px;
+            color: #777;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+        }
+
+        .level-author span {
+            color: #00aa55;
+            font-weight: bold;
+        }
+
+        /* Скриншот */
+        .screenshot-wrapper img {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+        }
+
+        /* Остальные места */
+        .other-levels {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .level-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        .place-num {
+            font-weight: 900;
+            font-size: 20px;
+            color: #ccc;
+            min-width: 35px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="top-label">⚡ Challenge ⚡</div>
+            <h1>Top Spam List<br><span class="highlight">ZundaGDPS</span></h1>
+            <div class="divider"></div>
+        </div>
+
+        <!-- #1 MatedGrief -->
+        <div class="top-level">
+            <div class="rank-badge">🥇 #1</div>
+            <div class="level-name">MatedGrief</div>
+            <div class="level-author">by <span>Zurik</span></div>
+            <div class="screenshot-wrapper">
+                <img src="https://raw.githubusercontent.com/Nashvaniekanala/zundafiles/refs/heads/main/photo_2026-05-27_21-23-22.jpg" alt="MatedGrief level screenshot">
+            </div>
+        </div>
+
+        <!-- Остальные места -->
+        <div class="other-levels">
+            <div class="level-placeholder">
+                <span class="place-num">🥈 #2</span>
+                <span>Ожидание...</span>
+            </div>
+            <div class="level-placeholder">
+                <span class="place-num">🥉 #3</span>
+                <span>Ожидание...</span>
+            </div>
+            <div class="level-placeholder">
+                <span class="place-num">#4</span>
+                <span>Ожидание...</span>
+            </div>
+            <div class="level-placeholder">
+                <span class="place-num">#5</span>
+                <span>Ожидание...</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
