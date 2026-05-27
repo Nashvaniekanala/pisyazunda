@@ -3,173 +3,629 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Spam List Challenge — ZundaGDPS</title>
+    <title>ZundaGDPS — Топ Спам & Глобальный Чат</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
+        :root {
+            --bg-color: #0b0b0f;
+            --card-bg: #13131c;
+            --input-bg: #1c1c27;
+            --accent: #00ff88;
+            --accent-blue: #00e5ff;
+            --text-main: #ffffff;
+            --text-muted: #7e7e94;
+            --gold: #ffd700;
+            --silver: #e0e0e0;
+            --bronze: #cd7f32;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background: #ffffff;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Кнопка переключения в глобальный чат */
+        .nav-left-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        .nav-left-btn:hover {
+            background: var(--accent-blue);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
         }
 
         .container {
             width: 800px;
             max-width: 100%;
-            padding: 35px;
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Заголовок */
+        /* Экраны страниц */
+        .page { display: none; }
+        .page.active { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Главная шапка */
         .header {
             text-align: center;
-            margin-bottom: 35px;
+            padding: 30px 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
-
         .header .top-label {
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 6px;
-            color: #888;
-            margin-bottom: 10px;
+            color: var(--accent);
+            margin-bottom: 12px;
         }
-
         .header h1 {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 900;
-            color: #111;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.4;
+            letter-spacing: 1px;
+        }
+        .header h1 span {
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
         }
 
-        .header h1 .highlight {
-            color: #00aa55;
-        }
-
-        .divider {
-            width: 80%;
-            height: 2px;
-            margin: 18px auto;
-            background: #ddd;
-        }
-
-        /* #1 место */
-        .top-level {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .rank-badge {
-            display: inline-block;
-            background: #111;
-            color: #fff;
-            font-weight: 900;
-            font-size: 22px;
-            padding: 7px 22px;
+        .submit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 255, 136, 0.08);
+            color: var(--accent);
+            text-decoration: none;
+            padding: 12px 24px;
             border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .level-name {
-            font-size: 26px;
-            font-weight: 900;
-            color: #111;
-            margin-bottom: 5px;
-        }
-
-        .level-author {
-            font-size: 15px;
-            color: #777;
-            letter-spacing: 2px;
-            margin-bottom: 18px;
-        }
-
-        .level-author span {
-            color: #00aa55;
             font-weight: bold;
+            margin-top: 15px;
+            border: 1px solid var(--accent);
+            transition: all 0.2s;
+        }
+        .submit-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
-        /* Скриншот */
-        .screenshot-wrapper img {
-            width: 100%;
-            border-radius: 8px;
-            display: block;
+        /* Карточки Топ Листа */
+        .level-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
+        .rank-box {
+            min-width: 70px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 15px;
+        }
+        .rank-box i { font-size: 26px; display: block; margin-bottom: 4px; }
+        .rank-1 { color: var(--gold); }
+        .rank-2 { color: var(--silver); }
+        .rank-3 { color: var(--bronze); }
+        .rank-4, .rank-5 { color: var(--text-muted); }
+        .rank-4 i, .rank-5 i { font-size: 18px; }
 
-        /* Остальные места */
-        .other-levels {
+        .level-info { flex-grow: 1; }
+        .level-name { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .level-meta { font-size: 13px; color: var(--text-muted); }
+        .level-meta span { color: var(--accent); }
+        .level-img { width: 160px; height: 90px; border-radius: 8px; object-fit: cover; background: #1c1c27; }
+        .empty-slot { opacity: 0.35; border: 1px dashed var(--text-muted); }
+
+        /* Окно Глобального Чата */
+        .chat-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--accent-blue);
+            height: 550px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.05);
+        }
+        .chat-header {
+            background: rgba(0,0,0,0.2);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .msg {
+            background: rgba(255,255,255,0.03);
+            padding: 10px 14px;
+            border-radius: 10px;
+            max-width: 85%;
+            width: fit-content;
+            animation: fadeIn 0.2s ease;
+        }
+        .msg-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; display: flex; gap: 8px; }
+        .msg-user { color: var(--accent-blue); font-weight: bold; }
+        .msg-text { font-size: 14px; word-break: break-word; }
+
+        .chat-input-area {
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Авторизация / Регистрация */
+        .chat-auth-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 15px;
+            padding: 40px;
+            text-align: center;
+        }
+        .auth-form {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            width: 300px;
         }
 
-        .level-placeholder {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #f5f5f5;
+        input[type="text"], input[type="password"] {
+            background: var(--input-bg);
+            border: 1px solid #2d2d3d;
+            color: #fff;
+            padding: 12px;
             border-radius: 8px;
-            padding: 16px 20px;
-            color: #aaa;
-            font-size: 15px;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
         }
-
-        .place-num {
-            font-weight: 900;
-            font-size: 20px;
-            color: #ccc;
-            min-width: 35px;
+        input:focus { border-color: var(--accent-blue); }
+        
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
         }
+        .btn-blue { background: var(--accent-blue); color: #000; }
+        .btn-blue:hover { background: #00b8cc; }
 
+        /* Всплывающее Модальное окно Админки */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .admin-modal {
+            background: var(--card-bg);
+            width: 750px;
+            max-width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid var(--accent);
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+        .admin-slot {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .admin-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .admin-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;}
+        
+        .footer { text-align: center; margin: 20px 0; color: var(--text-muted); font-size: 12px; }
+        .admin-trigger { cursor: pointer; text-decoration: underline; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <button class="nav-left-btn" id="nav-toggle" onclick="togglePage()">
+        <i class="fa-solid fa-comments"></i> <span>Перейти в глобальный чат</span>
+    </button>
+
     <div class="container">
-        <div class="header">
-            <div class="top-label">⚡ Challenge ⚡</div>
-            <h1>Top Spam List<br><span class="highlight">ZundaGDPS</span></h1>
-            <div class="divider"></div>
+        
+        <div id="page-list" class="page active">
+            <div class="header">
+                <div class="top-label"><i class="fa-solid fa-bolt"></i> Challenge <i class="fa-solid fa-bolt"></i></div>
+                <h1>Top Spam List<br><span>ZundaGDPS</span></h1>
+                <a href="https://t.me/ZundaGDPS_SpamBot" target="_blank" class="submit-btn">
+                    <i class="fa-brands fa-telegram"></i> Закинуть лвл (Telegram Bot)
+                </a>
+            </div>
+            <div id="levels-container"></div>
         </div>
 
-        <!-- #1 MatedGrief -->
-        <div class="top-level">
-            <div class="rank-badge">🥇 #1</div>
-            <div class="level-name">MatedGrief</div>
-            <div class="level-author">by <span>Zurik</span></div>
-            <div class="screenshot-wrapper">
-                <img src="https://raw.githubusercontent.com/Nashvaniekanala/zundafiles/refs/heads/main/photo_2026-05-27_21-23-22.jpg" alt="MatedGrief level screenshot">
+        <div id="page-chat" class="page">
+            <div class="header" style="padding: 15px;">
+                <h2><i class="fa-solid fa-earth-americas" style="color: var(--accent-blue)"></i> Глобальный чат ZundaGDPS</h2>
+            </div>
+            
+            <div class="chat-container">
+                <div id="chat-auth" class="chat-auth-box">
+                    <h3><i class="fa-solid fa-user-lock"></i> Нужна регистрация</h3>
+                    <p style="color: var(--text-muted)">Придумайте ник и пароль, чтобы общаться с другими игроками</p>
+                    <div class="auth-form">
+                        <input type="text" id="auth-nick" placeholder="Ваш игровой никнейм">
+                        <input type="password" id="auth-pass" placeholder="Придумайте пароль">
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <button class="btn-blue" style="flex: 1" onclick="handleAuth('login')">Войти</button>
+                            <button class="btn-blue" style="flex: 1; background: #334155; color: #fff" onclick="handleAuth('register')">Регистрация</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-room" style="display: none; flex-direction: column; height: 100%;">
+                    <div class="chat-header">
+                        <div>Вы зашли как: <span id="current-user-display" style="color:var(--accent-blue); font-weight:bold;"></span></div>
+                        <button onclick="logoutChat()" style="background:#ea580c; color:#fff; padding:5px 10px; font-size:12px;">Выйти</button>
+                    </div>
+                    <div class="chat-messages" id="chat-messages-box"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input-msg" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                        <button class="btn-blue" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Остальные места -->
-        <div class="other-levels">
-            <div class="level-placeholder">
-                <span class="place-num">🥈 #2</span>
-                <span>Ожидание...</span>
-            </div>
-            <div class="level-placeholder">
-                <span class="place-num">🥉 #3</span>
-                <span>Ожидание...</span>
-            </div>
-            <div class="level-placeholder">
-                <span class="place-num">#4</span>
-                <span>Ожидание...</span>
-            </div>
-            <div class="level-placeholder">
-                <span class="place-num">#5</span>
-                <span>Ожидание...</span>
-            </div>
+        <div class="footer">
+            <p>ZundaGDPS &copy; 2026 | <span class="admin-trigger" onclick="openAdminModal()"><i class="fa-solid fa-lock"></i> Панель управления</span></p>
         </div>
     </div>
 
+    <div class="modal-overlay" id="admin-modal-layer">
+        <div class="admin-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2d3d; padding-bottom: 10px;">
+                <h2 style="color: var(--accent)"><i class="fa-solid fa-sliders"></i> Модерация Списка Уровней</h2>
+                <button onclick="closeAdminModal()" style="background: #ef4444; color: white; border-radius: 50%; width: 30px; height: 30px; padding:0; border:none; cursor:pointer;">✕</button>
+            </div>
+            <div id="admin-slots-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // Сюда вставляются ключи от твоего проекта Firebase
+        const firebaseConfig = {
+            apiKey: "ТВОЙ_API_KEY",
+            authDomain: "ТВОЙ_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://ТВОЙ_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "ТВОЙ_PROJECT_ID",
+            storageBucket: "ТВОЙ_PROJECT_ID.appspot.com",
+            messagingSenderId: "ТВОЙ_SENDER_ID",
+            appId: "ТВОЙ_APP_ID"
+        };
+
+        // Проверка подключения реальной БД
+        let useFirebase = false;
+        let db;
+        if (firebaseConfig.apiKey !== "ТВОЙ_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            useFirebase = true;
+        }
+
+        // Стартовый Топ-5 по умолчанию
+        const defaultLevels = [
+            { place: 1, name: "MatedGrief", author: "Zurik", id: "123456", img: "https://raw.githubusercontent.com/Nashvaniekanala/zundafiles/refs/heads/main/photo_2026-05-27_21-23-22.jpg" },
+            { place: 2, name: "", author: "", id: "", img: "" },
+            { place: 3, name: "", author: "", id: "", img: "" },
+            { place: 4, name: "", author: "", id: "", img: "" },
+            { place: 5, name: "", author: "", id: "", img: "" }
+        ];
+
+        let levelsData = JSON.parse(localStorage.getItem('zundaLevels')) || defaultLevels;
+        let usersDB = JSON.parse(localStorage.getItem('chatUsers')) || {};
+        let messagesDB = JSON.parse(localStorage.getItem('chatMessages')) || [
+            { user: "Zurik", text: "Добро пожаловать в глобальный чат ZundaGDPS! Пройди регистрацию и пиши.", time: "00:00" }
+        ];
+        let activeUser = sessionStorage.getItem('activeUser') || null;
+
+        // Синхронизация данных с Firebase в реальном времени (если ключи подключены)
+        if (useFirebase) {
+            db.ref('levels').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    levelsData = snapshot.val();
+                    renderLevels();
+                }
+            });
+            db.ref('users').on('value', (snapshot) => {
+                if (snapshot.exists()) usersDB = snapshot.val();
+            });
+            db.ref('messages').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    messagesDB = Object.values(snapshot.val());
+                    renderChatMessages();
+                }
+            });
+        }
+
+        // Рендеринг иконок мест
+        function getRankHTML(place) {
+            if (place === 1) return `<div class="rank-box rank-1"><i class="fa-solid fa-crown"></i>#1</div>`;
+            if (place === 2) return `<div class="rank-box rank-2"><i class="fa-solid fa-trophy"></i>#2</div>`;
+            if (place === 3) return `<div class="rank-box rank-3"><i class="fa-solid fa-medal"></i>#3</div>`;
+            return `<div class="rank-box rank-${place}"><i class="fa-solid fa-award"></i>#${place}</div>`;
+        }
+
+        // Генерация списка уровней на странице
+        function renderLevels() {
+            const container = document.getElementById('levels-container');
+            container.innerHTML = '';
+            levelsData.forEach(level => {
+                if (level.name) {
+                    container.innerHTML += `
+                        <div class="level-card">
+                            ${getRankHTML(level.place)}
+                            <div class="level-info">
+                                <div class="level-name">${level.name}</div>
+                                <div class="level-meta">by <span>${level.author}</span> • ID: ${level.id}</div>
+                            </div>
+                            <img class="level-img" src="${level.img}" onerror="this.src='https://via.placeholder.com/160x90/1c1c27/ffffff?text=No+Photo'">
+                        </div>`;
+                } else {
+                    container.innerHTML += `
+                        <div class="level-card empty-slot">
+                            ${getRankHTML(level.place)}
+                            <div class="level-info"><div class="level-name">Ожидание рекорда...</div></div>
+                        </div>`;
+                }
+            });
+        }
+
+        // Переключатель страниц (Топ Лист <-> Чат)
+        function togglePage() {
+            const listPage = document.getElementById('page-list');
+            const chatPage = document.getElementById('page-chat');
+            const navBtn = document.getElementById('nav-toggle');
+
+            if (listPage.style.display !== 'none') {
+                listPage.style.display = 'none';
+                chatPage.style.display = 'flex';
+                navBtn.innerHTML = `<i class="fa-solid fa-list-ol"></i> <span>Перейти в Топ Лист</span>`;
+                navBtn.style.borderColor = 'var(--accent)';
+                navBtn.style.color = 'var(--accent)';
+                initChatRoom();
+            } else {
+                listPage.style.display = 'flex';
+                chatPage.style.display = 'none';
+                navBtn.innerHTML = `<i class="fa-solid fa-comments"></i> <span>Перейти в глобальный чат</span>`;
+                navBtn.style.borderColor = 'var(--accent-blue)';
+                navBtn.style.color = 'var(--accent-blue)';
+            }
+        }
+
+        /* Логика авторизации и отправки сообщений */
+        function initChatRoom() {
+            if (activeUser) {
+                document.getElementById('chat-auth').style.display = 'none';
+                document.getElementById('chat-room').style.display = 'flex';
+                document.getElementById('current-user-display').innerText = activeUser;
+                renderChatMessages();
+            } else {
+                document.getElementById('chat-auth').style.display = 'flex';
+                document.getElementById('chat-room').style.display = 'none';
+            }
+        }
+
+        function handleAuth(type) {
+            const nick = document.getElementById('auth-nick').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+
+            if (!nick || !pass) return alert("Заполните оба поля!");
+
+            if (type === 'register') {
+                if (usersDB[nick]) return alert("Этот никнейм уже зарегистрирован!");
+                usersDB[nick] = pass;
+                if (useFirebase) db.ref('users/' + nick).set(pass);
+                else localStorage.setItem('chatUsers', JSON.stringify(usersDB));
+                alert("Успешная регистрация! Теперь нажмите 'Войти'.");
+            } else if (type === 'login') {
+                if (usersDB[nick] && usersDB[nick] === pass) {
+                    activeUser = nick;
+                    sessionStorage.setItem('activeUser', activeUser);
+                    initChatRoom();
+                } else {
+                    alert("Неверный ник или пароль!");
+                }
+            }
+        }
+
+        function logoutChat() {
+            sessionStorage.removeItem('activeUser');
+            activeUser = null;
+            initChatRoom();
+        }
+
+        function renderChatMessages() {
+            const box = document.getElementById('chat-messages-box');
+            box.innerHTML = '';
+            messagesDB.forEach(m => {
+                box.innerHTML += `
+                    <div class="msg">
+                        <div class="msg-meta"><span class="msg-user">${m.user}</span> <span>${m.time}</span></div>
+                        <div class="msg-text">${m.text}</div>
+                    </div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input-msg');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const newMsg = { user: activeUser, text: text, time: timeStr };
+
+            if (useFirebase) {
+                db.ref('messages').push(newMsg);
+            } else {
+                messagesDB.push(newMsg);
+                localStorage.setItem('chatMessages', JSON.stringify(messagesDB));
+                renderChatMessages();
+            }
+            input.value = '';
+        }
+
+        /* Управление Админ-Панелью (Пароль: zundazurik21) */
+        function openAdminModal() {
+            const password = prompt("Введите секретный ключ доступа:");
+            if (password === "zundazurik21") {
+                document.getElementById('admin-modal-layer').classList.add('active');
+                renderAdmin();
+            } else {
+                alert("Ошибка доступа. Неверный пароль.");
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal-layer').classList.remove('active');
+        }
+
+        function renderAdmin() {
+            const box = document.getElementById('admin-slots-box');
+            box.innerHTML = '';
+            levelsData.forEach((level, index) => {
+                box.innerHTML += `
+                    <div class="admin-slot">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>Позиция #${level.place}</strong>
+                            <div class="admin-actions">
+                                <button style="background:#334155; color:#fff" onclick="moveUp(${index})"><i class="fa-solid fa-arrow-up"></i></button>
+                                <button style="background:#334155; color:#fff" onclick="moveDown(${index})"><i class="fa-solid fa-arrow-down"></i></button>
+                                <button style="background:var(--accent); color:#000;" onclick="saveSlot(${index})"><i class="fa-solid fa-check"></i> Ок</button>
+                            </div>
+                        </div>
+                        <div class="admin-inputs">
+                            <input type="text" id="adm-name-${index}" value="${level.name}" placeholder="Название уровня">
+                            <input type="text" id="adm-auth-${index}" value="${level.author}" placeholder="Автор">
+                            <input type="text" id="adm-id-${index}" value="${level.id}" placeholder="ID уровня">
+                        </div>
+                        <div style="display:grid; grid-template-columns: 3fr 1fr; gap:10px; align-items:center;">
+                            <input type="text" id="adm-img-${index}" value="${level.img}" placeholder="Прямая ссылка на скриншот">
+                            <input type="file" accept="image/*" onchange="uploadFile(event, ${index})" style="font-size:11px; color:#7e7e94;">
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function uploadFile(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 1 * 1024 * 1024) return alert("Файл весит больше 1МБ! Сжатый скриншот, пожалуйста.");
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(`adm-img-${index}`).value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveSlot(index) {
+            levelsData[index].name = document.getElementById(`adm-name-${index}`).value;
+            levelsData[index].author = document.getElementById(`adm-auth-${index}`).value;
+            levelsData[index].id = document.getElementById(`adm-id-${index}`).value;
+            levelsData[index].img = document.getElementById(`adm-img-${index}`).value;
+            
+            updateDatabase();
+            alert(`Слот #${index + 1} обновлен!`);
+        }
+
+        function moveUp(index) { if (index > 0) swap(index, index - 1); }
+        function moveDown(index) { if (index < levelsData.length - 1) swap(index, index + 1); }
+
+        function swap(i1, i2) {
+            const t = { ...levelsData[i1] };
+            levelsData[i1].name = levelsData[i2].name;
+            levelsData[i1].author = levelsData[i2].author;
+            levelsData[i1].id = levelsData[i2].id;
+            levelsData[i1].img = levelsData[i2].img;
+
+            levelsData[i2].name = t.name;
+            levelsData[i2].author = t.author;
+            levelsData[i2].id = t.id;
+            levelsData[i2].img = t.img;
+
+            updateDatabase();
+            renderAdmin();
+        }
+
+        function updateDatabase() {
+            if (useFirebase) {
+                db.ref('levels').set(levelsData);
+            } else {
+                localStorage.setItem('zundaLevels', JSON.stringify(levelsData));
+                renderLevels();
+            }
+        }
+
+        // Первичный рендеринг при старте
+        renderLevels();
+    </script>
 </body>
 </html>
